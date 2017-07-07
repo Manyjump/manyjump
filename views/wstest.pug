@@ -1,0 +1,10 @@
+extends layout
+block scripts
+  script(src='/javascripts/wstest.js')
+block content
+  h1= title
+  p Welcome to #{title}
+  button(onclick='sendJumpMessage()') Jump!
+  button(onclick='sendDeathMessage()') Game Over!
+  div#whoami
+  ul#users

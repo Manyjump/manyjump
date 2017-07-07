@@ -4,22 +4,34 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('manyjump:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('manyjump:server');
+const http = require('http');
+const SocketServer = require('ws').Server;
+const adjectives = require('./adjectives');
+
+/**
+ * Set up CORS
+ */
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -88,3 +100,75 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+/**
+ * Set up WS Server
+ */
+
+const wss = new SocketServer({ server });
+
+const users = {};
+let curid = 0;
+function getRandomName() {
+  return 'Princess ' + adjectives[Math.floor(Math.random() * adjectives.length)];
+}
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+  
+  // Add user to users
+  const id = curid++;
+  const name = getRandomName();
+  const user = { id, name }
+  users[id] = user;
+  ws.send(JSON.stringify({
+    event: 'successfullyConnected',
+    user: {id: user.id, name: user.name}
+  }));
+  
+  // Broadcast to all clients that new user connected
+  wss.clients.forEach((client) => {
+    client.send(JSON.stringify({
+      event: 'newUserConnected',
+      users
+    }));
+  });
+  
+  // Remove user from list on disconnect
+  ws.on('close', () => {
+    console.log(`Client disconnected with id: ${id}`);
+    delete users[id];
+    
+    // Broadcast to all clients that user disconnected
+    wss.clients.forEach((client) => {
+      client.send(JSON.stringify({
+        event: 'userDisconnected',
+        users
+      }));
+    });
+  });
+  
+  // Received message from client
+  ws.on('message', function incoming(message) {
+    message = JSON.parse(message);
+    
+    if (message.event === 'jump') {
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({
+          event: 'characterJumped',
+          id
+        }));
+      });
+    }
+    
+    if (message.event === 'death') {
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({
+          event: 'characterDied',
+          id
+        }));
+      });
+    }
+    
+  });
+});
