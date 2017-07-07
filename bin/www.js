@@ -4,22 +4,23 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('manyjump:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('manyjump:server');
+const http = require('http');
+const SocketServer = require('ws').Server;
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -88,3 +89,28 @@ function onListening() {
     : 'port ' + addr.port;
   debug('Listening on ' + bind);
 }
+
+/**
+ * Set up WS Server
+ */
+
+const wss = new SocketServer({ server });
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+  ws.on('close', () => console.log('Client disconnected'));
+  
+  ws.on('message', function incoming(message) {
+    console.log('received: %s', message);
+    wss.clients.forEach((client) => {
+      client.send(message);
+    });
+  });
+});
+
+
+//setInterval(() => {
+//  wss.clients.forEach((client) => {
+//    client.send(new Date().toTimeString());
+//  });
+//}, 1000);

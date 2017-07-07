@@ -1,0 +1,8 @@
+extends layout
+block scripts
+  script(src='/javascripts/wstest.js')
+block content
+  h1= title
+  p Welcome to #{title}
+  input#shared(type='text')
+  div#message
