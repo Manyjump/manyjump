@@ -4,6 +4,7 @@ block scripts
 block content
   h1= title
   p Welcome to #{title}
-  input#shared(type='text')
+  button(onclick='sendJumpMessage()') Jump!
+  button(onclick='sendDeathMessage()') Game Over!
   div#whoami
   ul#users

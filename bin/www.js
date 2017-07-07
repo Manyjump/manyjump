@@ -11,6 +11,16 @@ const SocketServer = require('ws').Server;
 const adjectives = require('./adjectives');
 
 /**
+ * Set up CORS
+ */
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+/**
  * Get port from environment and store in Express.
  */
 
@@ -138,17 +148,27 @@ wss.on('connection', (ws) => {
     });
   });
   
+  // Received message from client
   ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
-    wss.clients.forEach((client) => {
-      client.send(message);
-    });
+    message = JSON.parse(message);
+    
+    if (message.event === 'jump') {
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({
+          event: 'characterJumped',
+          id
+        }));
+      });
+    }
+    
+    if (message.event === 'death') {
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({
+          event: 'characterDied',
+          id
+        }));
+      });
+    }
+    
   });
 });
-
-
-//setInterval(() => {
-//  wss.clients.forEach((client) => {
-//    client.send(new Date().toTimeString());
-//  });
-//}, 1000);
