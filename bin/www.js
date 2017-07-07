@@ -8,6 +8,7 @@ const app = require('../app');
 const debug = require('debug')('manyjump:server');
 const http = require('http');
 const SocketServer = require('ws').Server;
+const adjectives = require('./adjectives');
 
 /**
  * Get port from environment and store in Express.
@@ -96,9 +97,46 @@ function onListening() {
 
 const wss = new SocketServer({ server });
 
+const users = {};
+let curid = 0;
+function getRandomName() {
+  return 'Princess ' + adjectives[Math.floor(Math.random() * adjectives.length)];
+}
+
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  ws.on('close', () => console.log('Client disconnected'));
+  
+  // Add user to users
+  const id = curid++;
+  const name = getRandomName();
+  const user = { id, name }
+  users[id] = user;
+  ws.send(JSON.stringify({
+    event: 'successfullyConnected',
+    user: {id: user.id, name: user.name}
+  }));
+  
+  // Broadcast to all clients that new user connected
+  wss.clients.forEach((client) => {
+    client.send(JSON.stringify({
+      event: 'newUserConnected',
+      users
+    }));
+  });
+  
+  // Remove user from list on disconnect
+  ws.on('close', () => {
+    console.log(`Client disconnected with id: ${id}`);
+    delete users[id];
+    
+    // Broadcast to all clients that user disconnected
+    wss.clients.forEach((client) => {
+      client.send(JSON.stringify({
+        event: 'userDisconnected',
+        users
+      }));
+    });
+  });
   
   ws.on('message', function incoming(message) {
     console.log('received: %s', message);
