@@ -1,0 +1,11 @@
+.obstacle {
+  height: 80px;
+  width: auto;
+  position: absolute;
+  bottom: 0;
+}
+
+.obstacle>img {
+  height: 100%;
+  width: auto;
+}
