@@ -22,14 +22,8 @@ body {
   overflow: hidden;
 }
 
-#backgrImg1 {
+#backgrImg1, #backgrImg2 {
   height: 400px;
-  background-color: purple;
-  position: absolute;
-}
-
-#backgrImg2 {
-  height: 400px;
-  background-color: green;
+  background: linear-gradient(to bottom, #356aa0, #e86a4e);
   position: absolute;
 }

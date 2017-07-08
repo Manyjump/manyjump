@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Character from './Character.jsx';
 import Background from './Background.jsx';
 import Obstacle from './Obstacle.jsx';
+import Notifications from './Notifications.jsx';
 
 function getInitialState() {
   return {
@@ -108,10 +109,11 @@ class App extends Component {
       // Get back name and id of own character
       if (message.event === 'successfullyConnected') {
         // Display my name and id
-        console.log(`I am ${message.user.name} (id: ${message.user.id})`);
+        //console.log(`I am ${message.user.name} (id: ${message.user.id})`);
         thisApp.setState({
           id: message.user.id,
-          name: message.user.name
+          name: message.user.name,
+          colorRotation: message.user.colorRotation
         });
       }
 
@@ -119,7 +121,7 @@ class App extends Component {
       if (message.event === 'newUserConnected' || message.event === 'userDisconnected') {
         const jumpObj = Object.assign({}, thisApp.state.jump);
         Object.keys(message.users).forEach(user => {
-          console.log(`${message.users[user].name} (id: ${message.users[user].id})`);
+          //console.log(`${message.users[user].name} (id: ${message.users[user].id})`);
           if (jumpObj[message.users[user].id] === undefined) {
             jumpObj[message.users[user].id] = false;
           }
@@ -133,7 +135,7 @@ class App extends Component {
       // Get back id of user that jumped
       if (message.event === 'characterJumped') {
         // message.id will contain which character jumped
-        console.log(`${message.id} jumped!`);
+        //console.log(`${message.id} jumped!`);
         const jumpObj = Object.assign({}, thisApp.state.jump);
         jumpObj[message.id] = true;
         thisApp.setState({
@@ -181,14 +183,17 @@ class App extends Component {
     // Render every character that is connected
     const connectedUsers = [];
     Object.keys(this.state.users).forEach(id => {
-      connectedUsers.push(<Character jump={this.state.jump[id]} key={id} id={id} name={this.state.users[id].name} />);
+      connectedUsers.push(<Character jump={this.state.jump[id]} key={id} name={this.state.users[id].name} colorRotation={this.state.users[id].colorRotation} />);
     });
 
     return (
-      <div id='background'>
-        <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
-        { connectedUsers }
-        <Obstacle pigX={this.state.pigX} />
+      <div id='app'>
+        <Notifications users={this.state.users} /> 
+        <div id='background'>
+          <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
+          { connectedUsers }
+          <Obstacle pigX={this.state.pigX} />
+        </div>
       </div>
     )
   }
