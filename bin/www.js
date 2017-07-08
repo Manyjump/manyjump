@@ -115,24 +115,9 @@ function getRandomName() {
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
-  
-  // Add user to users
-  const id = curid++;
-  const name = getRandomName();
-  const user = { id, name }
-  users[id] = user;
-  ws.send(JSON.stringify({
-    event: 'successfullyConnected',
-    user: {id: user.id, name: user.name}
-  }));
-  
-  // Broadcast to all clients that new user connected
-  wss.clients.forEach((client) => {
-    client.send(JSON.stringify({
-      event: 'newUserConnected',
-      users
-    }));
-  });
+  let id;
+  let name;
+  let user;
   
   // Remove user from list on disconnect
   ws.on('close', () => {
@@ -143,7 +128,8 @@ wss.on('connection', (ws) => {
     wss.clients.forEach((client) => {
       client.send(JSON.stringify({
         event: 'userDisconnected',
-        users
+        users,
+        id
       }));
     });
   });
@@ -151,6 +137,27 @@ wss.on('connection', (ws) => {
   // Received message from client
   ws.on('message', function incoming(message) {
     message = JSON.parse(message);
+    
+    if (message.event === 'start') {
+      // Add user to users
+      id = curid++;
+      name = getRandomName();
+      user = { id, name }
+      users[id] = user;
+      ws.send(JSON.stringify({
+        event: 'successfullyConnected',
+        user: {id: user.id, name: user.name}
+      }));
+
+      // Broadcast to all clients that new user connected
+      wss.clients.forEach((client) => {
+        client.send(JSON.stringify({
+          event: 'newUserConnected',
+          users,
+          id
+        }));
+      });
+    }
     
     if (message.event === 'jump') {
       wss.clients.forEach((client) => {
