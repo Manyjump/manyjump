@@ -43,8 +43,6 @@ class App extends Component {
   }
 
   update() {
-    console.log('in update');
-
     this.setState((prevState) => {
       const prevX1 = Number(prevState.bkgr1PosX.slice(0, -2));
       const prevX2 = Number(prevState.bkgr2PosX.slice(0, -2));
