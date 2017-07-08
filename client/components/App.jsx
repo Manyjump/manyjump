@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
 import Character from './Character.jsx';
+import Background from './Background.jsx';
 
 function getInitialState() {
   return {
+    bkgr1PosX: '0px',
+    bkgr2PosX: '916px',
     jump: {},
     lastJumpTime: 0,
     users: {},
@@ -16,6 +19,7 @@ class App extends Component {
     super(props);
     this.handleKey = this.handleKey.bind(this);
     this.setFalse = this.setFalse.bind(this);
+    this.update = this.update.bind(this);
     this.state = getInitialState();
   }
 
@@ -38,8 +42,34 @@ class App extends Component {
     this.setState({jump: jumpObj});
   }
 
+  update() {
+    console.log('in update');
+
+    this.setState((prevState) => {
+      const prevX1 = Number(prevState.bkgr1PosX.slice(0, -2));
+      const prevX2 = Number(prevState.bkgr2PosX.slice(0, -2));
+      let newX1;
+      let newX2;
+      if (prevX1 === -915) {
+        newX1 = '916px';
+        newX2 = prevX2 - 1 + 'px';
+      } else if (prevX2 === -915) {
+        newX1 = prevX1 - 1 + 'px';
+        newX2 = '916px';
+      } else {
+        newX1 = prevX1 - 1 + 'px';
+        newX2 = prevX2 - 1 + 'px';
+      }
+      return {
+        bkgr1PosX: newX1,
+        bkgr2PosX: newX2,
+      }
+    });
+  }
+  
   componentDidMount() {
     window.addEventListener('keypress', this.handleKey.bind(this, true));
+    setInterval(this.update, 10);
     
     // Set up Websocket
     const HOST = location.origin.replace(/^http/, 'ws')
@@ -122,6 +152,8 @@ class App extends Component {
   }
   
   render() {
+      
+    const { bkgr1PosX, bkgr2PosX } = this.state;
 
     // Render every character that is connected
     const connectedUsers = [];
@@ -130,7 +162,8 @@ class App extends Component {
     });
     
     return (
-      <div>
+      <div id='background'>
+        <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
         { connectedUsers }
       </div>
     )
