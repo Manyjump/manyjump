@@ -1,10 +1,11 @@
-var express = require('express');
+const express = require('express');
+const path = require('path');
 const SocketServer = require('ws').Server;
-var router = express.Router();
+const router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  res.render('index', { title: 'Express' });
+  res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 /* GET WS test page. */
