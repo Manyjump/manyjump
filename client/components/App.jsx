@@ -1,9 +1,12 @@
 import React, { Component } from 'react';
 import Character from './Character.jsx';
 import Background from './Background.jsx';
+import Obstacle from './Obstacle.jsx';
+import Notifications from './Notifications.jsx';
 
 function getInitialState() {
   return {
+    pigX: 0,
     bkgr1PosX: '0px',
     bkgr2PosX: '916px',
     jump: {},
@@ -19,7 +22,8 @@ class App extends Component {
     super(props);
     this.handleKey = this.handleKey.bind(this);
     this.setFalse = this.setFalse.bind(this);
-    this.update = this.update.bind(this);
+    this.updateBackground = this.updateBackground.bind(this);
+    this.updateObstacle = this.updateObstacle.bind(this);
     this.state = getInitialState();
   }
 
@@ -42,9 +46,7 @@ class App extends Component {
     this.setState({jump: jumpObj});
   }
 
-  update() {
-    console.log('in update');
-
+  updateBackground() {
     this.setState((prevState) => {
       const prevX1 = Number(prevState.bkgr1PosX.slice(0, -2));
       const prevX2 = Number(prevState.bkgr2PosX.slice(0, -2));
@@ -66,17 +68,39 @@ class App extends Component {
       }
     });
   }
-  
+
+  updateObstacle() {
+    let pigX = this.state.pigX;
+    // this.didCollide();
+    if (pigX === 915) {
+      pigX = 0;
+    } else {
+      pigX += 1;
+    }
+    this.setState({pigX});
+  }
+
+  didCollide () {
+    // if the (pigsleft) is less than the the prices rigth side(width of pricess from left)
+    // and the pricess bottom is less than pigs top(height of pig from bottom), they collided
+    if (document.querySelector('.obstacle').position().left < (916 - document.getElementById(this.state.id).position().left)
+    && document.getElementById(this.state.id).position().top < 320) {
+      console.log(`Princess ${this.state.name} died... :(`);
+      this.sendDeathMessage();
+    }
+  }
+
   componentDidMount() {
     window.addEventListener('keypress', this.handleKey.bind(this, true));
-    setInterval(this.update, 10);
-    
+    setInterval(this.updateBackground, 10);
+    setInterval(this.updateObstacle, 5);
+
     // Set up Websocket
     const HOST = location.origin.replace(/^http/, 'ws')
     this.ws = new WebSocket(HOST);
 
     const thisApp = this;
-    
+
     // WS Router
     this.ws.onmessage = function (event) {
       const message = JSON.parse(event.data);
@@ -85,10 +109,11 @@ class App extends Component {
       // Get back name and id of own character
       if (message.event === 'successfullyConnected') {
         // Display my name and id
-        console.log(`I am ${message.user.name} (id: ${message.user.id})`);
+        //console.log(`I am ${message.user.name} (id: ${message.user.id})`);
         thisApp.setState({
           id: message.user.id,
-          name: message.user.name
+          name: message.user.name,
+          colorRotation: message.user.colorRotation
         });
       }
 
@@ -96,7 +121,7 @@ class App extends Component {
       if (message.event === 'newUserConnected' || message.event === 'userDisconnected') {
         const jumpObj = Object.assign({}, thisApp.state.jump);
         Object.keys(message.users).forEach(user => {
-          console.log(`${message.users[user].name} (id: ${message.users[user].id})`);
+          //console.log(`${message.users[user].name} (id: ${message.users[user].id})`);
           if (jumpObj[message.users[user].id] === undefined) {
             jumpObj[message.users[user].id] = false;
           }
@@ -110,13 +135,13 @@ class App extends Component {
       // Get back id of user that jumped
       if (message.event === 'characterJumped') {
         // message.id will contain which character jumped
-        console.log(`${message.id} jumped!`);
+        //console.log(`${message.id} jumped!`);
         const jumpObj = Object.assign({}, thisApp.state.jump);
         jumpObj[message.id] = true;
         thisApp.setState({
           jump: jumpObj
         });
-        setTimeout(() => thisApp.setFalse(message.id), 500);
+        setTimeout(() => thisApp.setFalse(message.id), 800);
       }
 
       // Get back id of user that died
@@ -142,7 +167,7 @@ class App extends Component {
       event: 'start'
     }));
   }
-  
+
   // Invoke this function whenever the character dies
   // It sends a message to the server that the character has jumped
   sendDeathMessage() {
@@ -150,21 +175,25 @@ class App extends Component {
       event: 'death'
     }));
   }
-  
+
   render() {
-      
+
     const { bkgr1PosX, bkgr2PosX } = this.state;
 
     // Render every character that is connected
     const connectedUsers = [];
     Object.keys(this.state.users).forEach(id => {
-      connectedUsers.push(<Character jump={this.state.jump[id]} key={id} name={this.state.users[id].name} />);
+      connectedUsers.push(<Character jump={this.state.jump[id]} key={id} name={this.state.users[id].name} colorRotation={this.state.users[id].colorRotation} />);
     });
-    
+
     return (
-      <div id='background'>
-        <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
-        { connectedUsers }
+      <div id='app'>
+        <Notifications users={this.state.users} /> 
+        <div id='background'>
+          <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
+          { connectedUsers }
+          <Obstacle pigX={this.state.pigX} />
+        </div>
       </div>
     )
   }

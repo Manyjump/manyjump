@@ -112,12 +112,16 @@ let curid = 0;
 function getRandomName() {
   return 'Princess ' + adjectives[Math.floor(Math.random() * adjectives.length)];
 }
+function getRandomRotation() {
+  return Math.floor(Math.random() * 360) + 'deg';
+}
 
 wss.on('connection', (ws) => {
   console.log('Client connected');
   let id;
   let name;
   let user;
+  let colorRotation;
   
   // Remove user from list on disconnect
   ws.on('close', () => {
@@ -142,11 +146,13 @@ wss.on('connection', (ws) => {
       // Add user to users
       id = curid++;
       name = getRandomName();
-      user = { id, name }
+      colorRotation = getRandomRotation();
+      console.log(colorRotation);
+      user = { id, name, colorRotation }
       users[id] = user;
       ws.send(JSON.stringify({
         event: 'successfullyConnected',
-        user: {id: user.id, name: user.name}
+        user: {id: user.id, name: user.name, colorRotation: user.colorRotation}
       }));
 
       // Broadcast to all clients that new user connected
