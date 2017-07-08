@@ -19,8 +19,8 @@ class App extends Component {
   handleKey(value, e) {
     let jump = this.state.jump;
     let lastJumpTime = this.state.lastJumpTime
-    if(e.keyCode === 32 && !jump && (Date.now() - lastJumpTime) >= 1500) {
-      setTimeout(this.setFalse, 1200);
+    if(e.keyCode === 32 && !jump && (Date.now() - lastJumpTime) >= 1000) {
+      setTimeout(this.setFalse, 500);
       this.setState({
         jump: true,
         lastJumpTime: Date.now()
