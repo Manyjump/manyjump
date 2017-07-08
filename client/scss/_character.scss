@@ -1,13 +1,13 @@
 .character {
-  width: 7%;
+  width: 10%;
   height: auto;
   position: absolute;
   bottom: 0;
 }
 
 .jump {
-  -webkit-animation: jump .5s ease 0s normal;
-  animation: jump .5s ease 0s normal;
+  -webkit-animation: jump .8s ease 0s normal;
+  animation: jump .8s ease 0s normal;
 }
 
 .character>img {
@@ -53,7 +53,7 @@
  transform: translateY(0);
  }
  40%{
- transform: translateY(-100px);
+ transform: translateY(-120px);
  }
  100%{
  transform: translateY(0);
