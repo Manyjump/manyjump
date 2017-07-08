@@ -26,6 +26,7 @@ class App extends Component {
       // Send start game message to the server
       this.sendStartMessage();
     } else if (e.keyCode === 32 && (Date.now() - lastJumpTime) >= 1000) {
+      e.preventDefault();
       this.sendJumpMessage();
     }
 
@@ -126,7 +127,6 @@ class App extends Component {
     const connectedUsers = [];
     Object.keys(this.state.users).forEach(id => {
       connectedUsers.push(<Character jump={this.state.jump[id]} key={id} name={this.state.users[id].name} />);
-      console.log(this.state.jump[id], 'this char jumped', id);
     });
     
     return (
