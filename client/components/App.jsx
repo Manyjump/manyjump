@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Character from './Character.jsx';
 import Background from './Background.jsx';
+import Notifications from './Notifications.jsx';
 
 function getInitialState() {
   return {
@@ -83,7 +84,7 @@ class App extends Component {
       // Get back name and id of own character
       if (message.event === 'successfullyConnected') {
         // Display my name and id
-        console.log(`I am ${message.user.name} (id: ${message.user.id})`);
+        //console.log(`I am ${message.user.name} (id: ${message.user.id})`);
         thisApp.setState({
           id: message.user.id,
           name: message.user.name,
@@ -95,7 +96,7 @@ class App extends Component {
       if (message.event === 'newUserConnected' || message.event === 'userDisconnected') {
         const jumpObj = Object.assign({}, thisApp.state.jump);
         Object.keys(message.users).forEach(user => {
-          console.log(`${message.users[user].name} (id: ${message.users[user].id})`);
+          //console.log(`${message.users[user].name} (id: ${message.users[user].id})`);
           if (jumpObj[message.users[user].id] === undefined) {
             jumpObj[message.users[user].id] = false;
           }
@@ -109,7 +110,7 @@ class App extends Component {
       // Get back id of user that jumped
       if (message.event === 'characterJumped') {
         // message.id will contain which character jumped
-        console.log(`${message.id} jumped!`);
+        //console.log(`${message.id} jumped!`);
         const jumpObj = Object.assign({}, thisApp.state.jump);
         jumpObj[message.id] = true;
         thisApp.setState({
@@ -161,9 +162,12 @@ class App extends Component {
     });
     
     return (
-      <div id='background'>
-        <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
-        { connectedUsers }
+      <div id='app'>
+        <Notifications users={this.state.users} /> 
+        <div id='background'>
+          <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
+          { connectedUsers }
+        </div>
       </div>
     )
   }
