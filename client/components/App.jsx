@@ -86,7 +86,8 @@ class App extends Component {
         console.log(`I am ${message.user.name} (id: ${message.user.id})`);
         thisApp.setState({
           id: message.user.id,
-          name: message.user.name
+          name: message.user.name,
+          colorRotation: message.user.colorRotation
         });
       }
 
@@ -156,7 +157,7 @@ class App extends Component {
     // Render every character that is connected
     const connectedUsers = [];
     Object.keys(this.state.users).forEach(id => {
-      connectedUsers.push(<Character jump={this.state.jump[id]} key={id} name={this.state.users[id].name} />);
+      connectedUsers.push(<Character jump={this.state.jump[id]} key={id} name={this.state.users[id].name} colorRotation={this.state.users[id].colorRotation} />);
     });
     
     return (
