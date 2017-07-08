@@ -1,0 +1,30 @@
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
+#backgrImg {
+  // height:'400px';
+}
+
+#imgContainer {
+  display: block;
+  position: relative;
+  height: 400px;
+  width: 916px;
+  overflow: hidden;
+}
+
+#backgrImg1 {
+  height: 400px;
+  background-color: purple;
+  position: absolute;
+}
+
+#backgrImg2 {
+  height: 400px;
+  background-color: green;
+  position: absolute;
+}
