@@ -163,7 +163,7 @@ class App extends Component {
     
     return (
       <div id='app'>
-        <Notifications users={this.state.users} /> 
+        <Notifications users={this.state.users} />
         <div id='background'>
           <Background bkgr1PosX={bkgr1PosX} bkgr2PosX={bkgr2PosX} />
           { connectedUsers }
